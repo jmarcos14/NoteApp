@@ -27,7 +27,25 @@ npm run android:apk
 ```
 
 - `npm run android:sync` copia o build web para o projeto Android. Depois é só abrir `android/` no Android Studio, se preferir.
-- O APK de debug serve para instalar direto no aparelho. Para publicar na Play Store, gere um build release assinado (`./gradlew bundleRelease`) com a sua própria keystore.
+- O APK de debug serve para instalar direto no aparelho.
+
+### Build de release assinado
+
+1. Coloque a keystore em `android/keystore/noteapp-release.jks`.
+2. Copie `android/keystore.properties.example` para `android/keystore.properties` e preencha as senhas.
+3. Rode o build:
+
+```bash
+npm run android:release
+# APK: android/app/build/outputs/apk/release/app-release.apk
+# AAB (Play Store): android/app/build/outputs/bundle/release/app-release.aab
+```
+
+Em CI, use as variáveis de ambiente no lugar do arquivo: `NOTEAPP_KEYSTORE_FILE` (caminho relativo a `android/`), `NOTEAPP_KEYSTORE_PASSWORD`, `NOTEAPP_KEY_ALIAS` e `NOTEAPP_KEY_PASSWORD`. Sem keystore configurada, o build de release sai sem assinatura.
+
+A keystore e o `keystore.properties` estão no `.gitignore` e **nunca devem ir para o repositório**. Guarde uma cópia da keystore e da senha em local seguro: sem ela não dá para publicar atualizações do app (a menos que você use a assinatura gerenciada pelo Google Play).
+
+A cada nova versão, aumente `versionCode` e `versionName` em `android/app/build.gradle`.
 - Os ícones e a splash vêm das imagens em `assets/`. Para regenerar: `npx @capacitor/assets generate --android`.
 
 ## Funcionalidades

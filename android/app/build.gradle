@@ -1,5 +1,17 @@
 apply plugin: 'com.android.application'
 
+// Assinatura de release: lida de android/keystore.properties (não versionado)
+// ou das variáveis de ambiente NOTEAPP_KEYSTORE_FILE, NOTEAPP_KEYSTORE_PASSWORD,
+// NOTEAPP_KEY_ALIAS e NOTEAPP_KEY_PASSWORD (útil em CI).
+def keystoreProps = new Properties()
+def keystorePropsFile = rootProject.file('keystore.properties')
+if (keystorePropsFile.exists()) {
+    keystorePropsFile.withInputStream { keystoreProps.load(it) }
+}
+def signingValue = { String prop, String env -> keystoreProps.getProperty(prop) ?: System.getenv(env) }
+def releaseStoreFile = signingValue('storeFile', 'NOTEAPP_KEYSTORE_FILE')
+def hasReleaseSigning = releaseStoreFile != null
+
 android {
     namespace = "com.jmarcos.noteapp"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -8,7 +20,7 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
-        versionName "1.0"
+        versionName "0.1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -16,8 +28,23 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        if (hasReleaseSigning) {
+            release {
+                storeFile rootProject.file(releaseStoreFile)
+                storePassword signingValue('storePassword', 'NOTEAPP_KEYSTORE_PASSWORD')
+                keyAlias signingValue('keyAlias', 'NOTEAPP_KEY_ALIAS')
+                keyPassword signingValue('keyPassword', 'NOTEAPP_KEY_PASSWORD')
+            }
+        }
+    }
     buildTypes {
         release {
+            if (hasReleaseSigning) {
+                signingConfig signingConfigs.release
+            } else {
+                logger.warn('NoteApp: keystore de release não configurada; o build de release sairá sem assinatura.')
+            }
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
