@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { Capacitor, SystemBars, SystemBarsStyle } from '@capacitor/core'
 
 export type Theme = 'light' | 'dark' | 'system'
 
@@ -29,4 +30,8 @@ export function applyTheme(theme: Theme) {
   document
     .querySelectorAll('meta[name="theme-color"]')
     .forEach((m) => m.setAttribute('content', dark ? '#0b0f17' : '#f8fafc'))
+  // no app Android, ajusta a cor dos ícones da barra de status/navegação
+  if (Capacitor.isNativePlatform()) {
+    SystemBars.setStyle({ style: dark ? SystemBarsStyle.Dark : SystemBarsStyle.Light }).catch(() => {})
+  }
 }

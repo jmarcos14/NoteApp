@@ -15,6 +15,21 @@ npm run preview    # serve o build
 
 Os dados ficam no `localStorage` do navegador. No primeiro acesso o app carrega dados de exemplo; em **Configurações** dá para exportar/importar um backup JSON, restaurar os exemplos ou apagar tudo.
 
+## App Android (APK)
+
+O app é empacotado para Android com o [Capacitor](https://capacitorjs.com) (projeto nativo em `android/`).
+
+Requisitos: JDK 21 e Android SDK (platform 36 e build-tools 36) com `ANDROID_HOME` definido, ou `sdk.dir` no arquivo `android/local.properties`.
+
+```bash
+npm run android:apk
+# APK gerado em android/app/build/outputs/apk/debug/app-debug.apk
+```
+
+- `npm run android:sync` copia o build web para o projeto Android. Depois é só abrir `android/` no Android Studio, se preferir.
+- O APK de debug serve para instalar direto no aparelho. Para publicar na Play Store, gere um build release assinado (`./gradlew bundleRelease`) com a sua própria keystore.
+- Os ícones e a splash vêm das imagens em `assets/`. Para regenerar: `npx @capacitor/assets generate --android`.
+
 ## Funcionalidades
 
 ### 💰 Módulo financeiro (`/finance`)
