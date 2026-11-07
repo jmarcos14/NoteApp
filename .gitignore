@@ -1,0 +1,10 @@
+node_modules
+dist
+*.log
+.DS_Store
+*.tsbuildinfo
+
+# Assinatura Android: nunca versionar chaves ou senhas
+*.jks
+*.keystore
+keystore.properties
